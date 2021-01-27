@@ -8,12 +8,8 @@ Class {
 }
 
 { #category : #arithmetic }
-DieHandle >> + aDieHandle [
-	| handle |
-	handle := DieHandle new.
-	self allDie do: [ :each | handle addDie: each].
-	aDieHandle allDie do: [ :each | handle addDie: each ].
-	^ handle 
+DieHandle >> + aDicable [
+	^ aDicable sumWithHandle: self
 ]
 
 { #category : #adding }
@@ -22,7 +18,7 @@ DieHandle >> addDie: aDie [
 ]
 
 { #category : #'as yet unclassified' }
-DieHandle >> allDie [
+DieHandle >> dice [
 	^ diceList .
 ]
 
@@ -39,4 +35,22 @@ DieHandle >> initialize [
 { #category : #'as yet unclassified' }
 DieHandle >> roll [ 
 	^ diceList inject: 0 into: [ :sum :each | sum + each roll ]
+]
+
+{ #category : #'as yet unclassified' }
+DieHandle >> sumWithDie: aDie [
+	| handle |
+	handle := self class new.
+	self dice do: [ :each | handle addDie: each ].
+	handle addDie: aDie.
+	^ handle
+]
+
+{ #category : #'as yet unclassified' }
+DieHandle >> sumWithHandle: aDieHandle [
+	| hd |
+	hd := self class new.
+	self dice do: [ :each | hd addDie: each ].
+	aDieHandle dice do: [ :each | hd addDie: each ].
+	^ hd
 ]
