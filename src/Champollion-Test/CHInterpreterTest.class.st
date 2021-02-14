@@ -11,14 +11,14 @@ Class {
 
 { #category : #'as yet unclassified' }
 CHInterpreterTest >> executeSelector: aSymbol [
-	^ self executeSelector: aSymbol withReceiver: receiver
+	^ self executeSelector: aSymbol withReceiver: receiver 
 ]
 
 { #category : #'as yet unclassified' }
 CHInterpreterTest >> executeSelector: aSymbol withReceiver: aReceiver [ 
 	| ast |
 	ast := (CHInterpretable >> aSymbol) parseTree.
-	^ self interpreter execute: ast withReceiver: aReceiver 
+	^ self interpreter execute: ast withReceiver: aReceiver
 ]
 
 { #category : #'as yet unclassified' }
@@ -26,46 +26,55 @@ CHInterpreterTest >> interpreter [
 	^ CHInterpreter new
 ]
 
-{ #category : #'as yet unclassified' }
-CHInterpreterTest >> peanoToInt: aPeanoNumber [
-	^ aPeanoNumber ifEmpty: [ 0 ] ifNonEmpty: [ 1 + (self peanoToInt: aPeanoNumber first) ]
-]
-
 { #category : #running }
-CHInterpreterTest >> setUp [ 
+CHInterpreterTest >> setUp [
 	super setUp.
 	receiver := CHInterpretable new.
-	interpreter := CHInterpreter new.
-	collaborator:= CHInterpretable new.
-	receiver collaborator: collaborator
+	collaborator := CHInterpretable new.
+	receiver collaborator: CHInterpretable new
+
 ]
 
 { #category : #tests }
 CHInterpreterTest >> testArgumentAccess [
 	receiver x: 200.
-	collaborator  x: 300.
+	collaborator x: 300.
 	self executeSelector: #changeCollaboratorWithArgument.
-	
 	self assert: receiver x equals: 200.
-	self assert: collaborator x equals: 500.
+	self assert: collaborator x equals: 500
 ]
 
 { #category : #tests }
 CHInterpreterTest >> testAssignmentReturnsAssignedValue [
-	self assert: (self executeSelector: #store100IntoX ) equals: 100
+	self assert: (self executeSelector: #store100IntoX) equals: 100
 ]
 
 { #category : #tests }
 CHInterpreterTest >> testBalancingStack [
-	self assert: (self executeSelector: #setXAndMessage ) equals: 1000
+	self assert: (self executeSelector: #setXAndMessage) equals: 1000
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testDoesNotUnderstandReifiesMessageWithArguments [
+	self assert: (self executeSelector: #sendMessageNotUnderstood) arguments equals: #( 17 27 )
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testDoesNotUnderstandReifiesMessageWithSelector [
+	self assert: (self executeSelector: #sendMessageNotUnderstand) selector equals: #messageIDoNotUnderstandWithArg1:withArg2:
 ]
 
 { #category : #tests }
 CHInterpreterTest >> testEvaluationOrder [
 	| argumentEvaluationOrder |
 	argumentEvaluationOrder := self executeSelector: #returnEvaluationOrder.
-	self assert: (self peanoToInt: receiver evaluationOrder ) equals: 0.
+	self assert: (self peanoToInt: receiver evaluationOrder) equals: 0.
 	self assert: (argumentEvaluationOrder collect: [ :peano | self peanoToInt: peano]) equals: #(1 2 3)
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testFailingPrimitive [
+	self assert: (self executeSelector: #callingFailingPrimitive) equals: 'failure'
 ]
 
 { #category : #tests }
@@ -78,13 +87,33 @@ CHInterpreterTest >> testInstanceVariableStoreInMethodActivationDoesNotChangeSen
 ]
 
 { #category : #tests }
-CHInterpreterTest >> testReturnBoolean [
+CHInterpreterTest >> testLookupMessageInSuperclass [
+	self assert: (self executeSelector: #sendMessageInSuperclass) equals: 5 
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testLookupRedefinedMethod [
+	self assert: (self executeSelector: #overriddenMethod) equals: 5
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testLookupSuperMessage [
+	self assert: (self executeSelector: #doesSuperLookupFromSuperClass)
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testLookupSuperMessageNotInReceiverSuperclass [
+	self assert: (self executeSelector: #redefinedMethod) equals: 5
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testReturnBoolean [ 
 	self assert: (self executeSelector: #returnBoolean) equals: false
 ]
 
 { #category : #tests }
-CHInterpreterTest >> testReturnEmptyLiteralArray [
-	self assert: (self executeSelector: #returnEmptyLiteralArray ) equals: #()
+CHInterpreterTest >> testReturnEmptyLiteralArray [ 
+	self assert: (self executeSelector: #returnEmptyLiteralArray) equals: #()
 ]
 
 { #category : #tests }
@@ -93,11 +122,11 @@ CHInterpreterTest >> testReturnFloat [
 ]
 
 { #category : #tests }
-CHInterpreterTest >> testReturnGlobal [
+CHInterpreterTest >> testReturnGlobal [ 
 	| globalObject |
 	globalObject := Object new.
 	interpreter globalEnvironmentAt: #Global put: globalObject.
-	self assert: (self executeSelector: #returnGlobal ) equals: globalObject 
+	self assert: (self executeSelector: #returnGlobal) equals: globalObject
 ]
 
 { #category : #tests }
@@ -107,23 +136,23 @@ CHInterpreterTest >> testReturnInstanceVariableRead [
 ]
 
 { #category : #tests }
-CHInterpreterTest >> testReturnInteger [
+CHInterpreterTest >> testReturnInteger [ 
 	self assert: (self executeSelector: #returnInteger) equals: 5
 ]
 
 { #category : #tests }
-CHInterpreterTest >> testReturnRecursiveLiteralArray [
-	self assert: (self executeSelector: #returnRecursiveLiteralArray ) equals: #(true 1 #('ahah'))
+CHInterpreterTest >> testReturnRecursiveLiteralArray [ 
+	self assert: (self executeSelector: #returnRecursiveLiteralArray) equals: #(true 1 #('ahah'))
 ]
 
 { #category : #tests }
 CHInterpreterTest >> testReturnSelf [
-	self assert: (self executeSelector: #returnSelf withReceiver: receiver) == receiver
+	self assert: (self executeSelector: #returnSelf withReceiver: receiver) equals: receiver
 ]
 
 { #category : #tests }
 CHInterpreterTest >> testReturnSuper [
-	self assert: (self executeSelector: #returnSelf withReceiver: receiver) == receiver
+	self assert: (self executeSelector: #returnSelf withReceiver: receiver) equals: receiver
 ]
 
 { #category : #tests }
@@ -133,13 +162,23 @@ CHInterpreterTest >> testSelfSend [
 ]
 
 { #category : #tests }
-CHInterpreterTest >> testStore100IntoX [
+CHInterpreterTest >> testSmallIntAddPrimitive [
+	self assert: (self executeSelector: #smallIntAdd ) equals: 6
+]
+
+{ #category : #tests }
+CHInterpreterTest >> testStore100IntoX [ 
 	receiver x: 17.
-	self executeSelector: #store100IntoX .
+	self executeSelector: #store100IntoX.
 	self assert: receiver x equals: 100
 ]
 
 { #category : #tests }
+CHInterpreterTest >> testUnassignedTempHasNilValue [
+	self assert: (self executeSelector: #returnUnassignedTemp) equals: nil
+]
+
+{ #category : #tests }
 CHInterpreterTest >> testWriteTemporaryVariable [
-	self assert: (self executeSelector: #writeTemporaryVariable ) equals: 100
+	self assert: (self executeSelector: #writeTemporaryVariable) equals: 100
 ]
